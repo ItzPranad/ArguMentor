@@ -447,7 +447,11 @@ i just want a proper speech and that;s it what output i need
         # with open(r"/home/shadow-scripter/Documents/Documents/Cybro-AI/Data/Chatlog.json", "w") as f:
         #     dump(messages, f, indent=4)
 
-        return AnswerModifier(Answer)
+        Answer = AnswerModifier(Answer=Answer)
+        Answer = Answer.replace("**", "")
+        Answer = Answer.replace("*","")
+
+        return Answer
     
 
 
