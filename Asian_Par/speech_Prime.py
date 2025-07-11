@@ -439,7 +439,11 @@ i want a proper 7 minute speech on this topic, no 1 or 2 minute speeches but 7 m
         # with open(r"/home/shadow-scripter/Documents/Documents/Cybro-AI/Data/Chatlog.json", "w") as f:
         #     dump(messages, f, indent=4)
 
-        return AnswerModifier(Answer)
+        Answer = AnswerModifier(Answer=Answer)
+        Answer = Answer.replace("**", "")
+        Answer = Answer.replace("*","")
+
+        return Answer
     
 
 
