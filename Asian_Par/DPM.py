@@ -441,8 +441,11 @@ and this is the most important part ***there should be no mentions of the facts 
         # with open(r"/home/shadow-scripter/Documents/Documents/Cybro-AI/Data/Chatlog.json", "w") as f:
         #     dump(messages, f, indent=4)
 
-        return AnswerModifier(Answer)
-    
+        Answer = AnswerModifier(Answer=Answer)
+        Answer = Answer.replace("**", "")
+        Answer = Answer.replace("*","")
+
+        return Answer
 
 
     except Exception as e:
