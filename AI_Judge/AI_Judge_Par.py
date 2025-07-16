@@ -15,69 +15,88 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QPushB
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFont, QTextCursor
 
-def Speech_Gen(Motion, pm, ol, dpm, dlo, gw, ow):
-    # time =  int(input("enter the time of the motion : "))
-    # side = "Opposition"
-    # latest_context = fetch_latest_info(Motion)
-    # information = str(information)
-
+def Speech_Gen(Motion, pm, ol, dpm, dlo, gw, ow, committee_summary):
     system_prompt = """
-You are an impartial, logical and reductionist AI Judge in a parliamentary debate round.
+You are an impartial, logical, and reductionist AI Judge in a 3v3 Asian Parliamentary debate round.
 
-Your role is to:
-1. Read and evaluate all six speeches (PM, OL, DPM, DLO, GW, OW).
-2. Identify and analyse the major CLASHES in the debate (points where both sides presented competing arguments).
-3. For each clash:
-   - Assign a **weight** from 1 to 5 (based on relevance to the motion).
-   - Score each team:
-     - +1 if the team convincingly won the clash (better logic, examples, rebuttals).
-     - 0 if the clash was symmetric (both teams equal).
-     - -1 if the team clearly lost the clash.
-4. Sum the weighted scores for both sides (Government vs. Opposition).
-5. Evaluate **individual speaker quality** using these standard metrics:
-   - **Content (30%)**: strength of arguments, evidence, logic.
-   - **Style (20%)**: clarity, engagement, rhetorical tools.
-   - **Strategy (30%)**: structure, clash engagement, prioritisation.
-   - **Responsiveness (20%)**: rebuttal strength and refutation quality.
+You will be provided with:
+- The motion
+- The six speeches (PM, OL, DPM, DLO, GW, OW)
+- A committee summary (listing POIs asked, responses, dodges, interruptions, and notable strategic moves)
 
-Assign each speaker a score out of 100 and rank them from **Best Speaker to Weakest**.
+Your responsibilities include:
 
-6. Output your judgement with:
-   - A brief explanation of the top 3 clashes and how each side performed.
-   - Final team scores (Gov vs Opp).
-   - A ranked list of speakers with scores and a one-line reason.
-   - Declare the **Winning Side** (Gov/Opp).
+1. Read all six speeches.
+2. Use the committee summary to adjust credit based on POIs, dodges, good interjections, or mishandling.
+3. Identify and analyse 3–5 **major clashes** in the debate. For each:
+   - Assign a **weight** (1–5) based on relevance to the motion.
+   - Assign scores: +1 (won), 0 (tie), -1 (lost)
+4. Sum weighted clash scores for:
+   - Government (PM + DPM + GW)
+   - Opposition (OL + DLO + OW)
 
-🧠 Chain-of-Thought (CoT): Clearly break down how you arrived at every conclusion in a step-by-step manner. Make your logic transparent and human-readable, but free from emotional bias.
+5. Evaluate individual speakers based on:
+   - Content (30%)
+   - Style (20%)
+   - Strategy (30%)
+   - Responsiveness (20%, including POIs & interactivity)
 
-DO NOT generate any new arguments or speculate. Only judge based on what is presented in the speeches.
+6. Rank speakers from 1 (best) to 6 (worst) with score out of 100.
 
-FORMAT STRICTLY AS FOLLOWS:
+7. Output all results in this format:
 
 ==============================
 🏛️ Debate Evaluation: [Motion]
 ==============================
 
+🧾 Committee Summary:
+[Insert committee summary exactly as given]
+
 🔍 Clash Analysis:
-1. [Clash Name] – Weight: [1–5]
-   - Government: [+1 / 0 / -1] → brief reason
-   - Opposition: [+1 / 0 / -1] → brief reason
-[Repeat for 3–5 major clashes]
+1. [Clash] – Weight: [1–5]
+   - Government: [+1/0/-1] → brief reason
+   - Opposition: [+1/0/-1] → brief reason
+[...]
 
 📊 Weighted Team Scores:
-- Government: [total score]
-- Opposition: [total score]
+- Government: [Score]
+- Opposition: [Score]
 
 🎙️ Speaker Rankings:
-1. [Name – e.g. DLO] – [Score/100] – [One-line reason]
+1. [Name] – [Score/100] – [One-line reason]
 2. ...
 6. [Name] – [Score/100] – [One-line reason]
 
-🏆 Verdict: [Winning Side]
-Reason: [1–2 line summary of why they won]
+🏆 Verdict: [Government / Opposition]
+Reason: [1–2 line justification]
 """
 
-    # Q&A Performance (optional): {qa_text}
+    full_input = f"""
+Motion: {Motion}
+
+🗣️ Speeches:
+
+1. Prime Minister (PM):
+{pm}
+
+2. Opposition Leader (OL):
+{ol}
+
+3. Deputy Prime Minister (DPM):
+{dpm}
+
+4. Deputy Leader of Opposition (DLO):
+{dlo}
+
+5. Government Whip (GW):
+{gw}
+
+6. Opposition Whip (OW):
+{ow}
+
+🧾 Committee Summary:
+{committee_summary}
+"""
 
     LLAMA3_client_model_1 = Sambanova(
         is_conversation=True,
@@ -89,9 +108,8 @@ Reason: [1–2 line summary of why they won]
         api_key="8bb1f2ae-f908-42cb-878e-cafacb8fb893"
     )
 
-    speech = LLAMA3_client_model_1.chat(Motion)
-    speech = speech.replace("**", "")
-    speech = speech.replace("*","")
+    speech = LLAMA3_client_model_1.chat(full_input)
+    speech = speech.replace("**", "").replace("*", "")
     print(speech)
 
 pm = """Ladies and gentlemen, esteemed judges, and fellow debaters, today we gather to discuss a pressing issue that has been affecting our youth, our society, and our world at large. The motion before us is clear: This House believes that TikTok has done more harm than good. As the Prime Minister, I stand before you today to argue that TikTok's negative impacts far outweigh its benefits.
@@ -153,3 +171,5 @@ In conclusion, ladies and gentlemen, the harm caused by TikTok far outweighs any
 
 if __name__ == "__main__":
     Speech_Gen(Motion="thbt tiktok has done more harm than good", pm=pm, ol=ol, dpm=dpm, dlo=dlo, gw=gw, ow=ow)
+
+    
